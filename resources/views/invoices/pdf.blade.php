@@ -71,7 +71,7 @@
             </tr>
             @endif
             <tr>
-                <td style="text-align: right;"><strong>Tax (10%):</strong></td>
+                <td style="text-align: right;"><strong>Tax ({{ rtrim(rtrim(number_format($invoice->checkout->tax_rate, 2), '0'), '.') }}%):</strong></td>
                 <td style="text-align: right;">${{ number_format($invoice->checkout->tax, 2) }}</td>
             </tr>
             <tr>

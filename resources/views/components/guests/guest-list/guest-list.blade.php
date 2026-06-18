@@ -4,9 +4,9 @@
             <h1 class="text-xl font-bold text-gray-900">Guests</h1>
             <p class="text-sm text-gray-500 mt-0.5">Guest directory and profiles</p>
         </div>
-        <button wire:click="openCreate" class="btn-primary">
+        <a href="{{ route('guests.create') }}" class="btn-primary">
             <i class="fas fa-user-plus"></i> Add Guest
-        </button>
+        </a>
     </div>
 
     <div class="pms-card">
@@ -48,9 +48,9 @@
                         <td class="text-gray-600">{{ $guest->nationality ?? '—' }}</td>
                         <td>
                             <div class="flex items-center gap-1">
-                                <button wire:click="edit({{ $guest->id }})" class="btn-icon text-indigo-500 hover:bg-indigo-50" title="Edit">
+                                <a href="{{ route('guests.edit', $guest->id) }}" class="btn-icon text-indigo-500 hover:bg-indigo-50" title="Edit">
                                     <i class="fas fa-edit text-sm"></i>
-                                </button>
+                                </a>
                                 <button wire:click="delete({{ $guest->id }})" wire:confirm="Delete guest {{ $guest->name }}?"
                                         class="btn-icon text-red-500 hover:bg-red-50" title="Delete">
                                     <i class="fas fa-trash text-sm"></i>
@@ -72,66 +72,5 @@
         @if($guests->hasPages())
         <div class="px-5 py-4 border-t border-gray-100">{{ $guests->links() }}</div>
         @endif
-    </div>
-
-    {{-- Drawer --}}
-    <div x-show="$wire.showDrawer" class="drawer-overlay" @click="$wire.showDrawer = false"
-         x-transition:enter="transition-opacity ease-linear duration-200"
-         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition-opacity ease-linear duration-200"
-         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         style="display:none"></div>
-    <div x-show="$wire.showDrawer" class="drawer-panel"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
-         style="display:none">
-        <div class="drawer-header">
-            <h3 class="text-base font-semibold text-gray-900">{{ $isEditMode ? 'Edit Guest' : 'Add New Guest' }}</h3>
-            <button @click="$wire.showDrawer = false" class="btn-icon"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="drawer-body space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="pms-label">Guest ID <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="guest_id" class="pms-input" placeholder="G-00001">
-                    @error('guest_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label class="pms-label">Full Name <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="name" class="pms-input" placeholder="John Doe">
-                    @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label class="pms-label">Email</label>
-                    <input type="email" wire:model="email" class="pms-input" placeholder="john@example.com">
-                    @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label class="pms-label">Phone</label>
-                    <input type="text" wire:model="phone" class="pms-input" placeholder="+1 234 567 8900">
-                </div>
-                <div>
-                    <label class="pms-label">Nationality</label>
-                    <input type="text" wire:model="nationality" class="pms-input" placeholder="e.g. Indian">
-                </div>
-                <div>
-                    <label class="pms-label">Passport No.</label>
-                    <input type="text" wire:model="passport_number" class="pms-input" placeholder="A1234567">
-                </div>
-                <div class="col-span-2">
-                    <label class="pms-label">Address</label>
-                    <textarea wire:model="address" rows="2" class="pms-input resize-none" placeholder="Full address..."></textarea>
-                </div>
-            </div>
-        </div>
-        <div class="drawer-footer">
-            <button @click="$wire.showDrawer = false" class="btn-secondary">Cancel</button>
-            <button wire:click="store" wire:loading.attr="disabled" class="btn-primary">
-                <span wire:loading wire:target="store"><i class="fas fa-spinner fa-spin"></i></span>
-                {{ $isEditMode ? 'Update Guest' : 'Add Guest' }}
-            </button>
-        </div>
     </div>
 </div>

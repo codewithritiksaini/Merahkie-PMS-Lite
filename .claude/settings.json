@@ -19,7 +19,19 @@
       "Bash(pdfinfo /tmp/single.pdf)",
       "Read(//var/log/**)",
       "Bash(journalctl -u cron --since \"2 minutes ago\")",
-      "Bash(journalctl _COMM=cron --since \"2 minutes ago\")"
+      "Bash(journalctl _COMM=cron --since \"2 minutes ago\")",
+      "Bash(php -l \"resources/views/components/reservations/reservation-list/reservation-list.php\")",
+      "Bash(php -l app/Models/Reservation.php)",
+      "Bash(php -l app/Services/ReservationService.php)",
+      "Bash(php -l app/Models/CheckOut.php)",
+      "Bash(php -l \"resources/views/components/rooms/room-create/room-create.php\")",
+      "Bash(php -l \"resources/views/components/guests/guest-create/guest-create.php\")",
+      "Bash(php -l \"resources/views/components/reservations/reservation-create/reservation-create.php\")",
+      "Bash(php -l routes/web.php)",
+      "Bash(php -l \"resources/views/components/rooms/room-edit/room-edit.php\")",
+      "Bash(php -l \"resources/views/components/guests/guest-edit/guest-edit.php\")",
+      "Bash(php -l \"resources/views/components/reservations/reservation-edit/reservation-edit.php\")",
+      "Bash(php -l \"resources/views/components/rooms/room-types/room-types.php\")"
     ]
   }
 }

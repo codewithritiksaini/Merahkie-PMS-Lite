@@ -12,7 +12,7 @@ class Reservation extends Model
     protected $fillable = [
         'guest_id', 'check_in_date',
         'check_out_date', 'adults', 'children',
-        'discount_type', 'discount_value',
+        'discount_type', 'discount_value', 'tax_rate',
         'special_notes', 'status'
     ];
 
@@ -60,10 +60,11 @@ class Reservation extends Model
             : min((float) $this->discount_value, $subtotal);
 
         $discountedSubtotal = $subtotal - $discount;
-        $tax = round($discountedSubtotal * 0.10, 2);
+        $tax_rate = (float) ($this->tax_rate ?? 18);
+        $tax = round($discountedSubtotal * ($tax_rate / 100), 2);
         $total = round($discountedSubtotal + $tax, 2);
 
-        return compact('subtotal', 'discount', 'tax', 'total');
+        return compact('subtotal', 'discount', 'tax', 'total', 'tax_rate');
     }
 
     public function getEstimatedTotalAttribute(): float

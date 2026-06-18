@@ -54,7 +54,7 @@ class DailyCashSheetService
                 'room_number'    => $room->room_number,
                 'name'           => $reservation->guest->name ?? 'N/A',
                 'rent'           => $rate,
-                'tax'            => round($rate * 0.10, 2),
+                'tax'            => round($rate * ((float) $reservation->tax_rate / 100), 2),
                 'misc'           => null,
                 'arrival_date'   => $reservation->check_in_date,
                 'departure_date' => $reservation->check_out_date,

@@ -17,15 +17,22 @@ Route::middleware('auth')->group(function () {
 
     // Rooms
     Route::livewire('/rooms', 'rooms.room-list')->name('rooms.index');
+    Route::livewire('/rooms/create', 'rooms.room-create')->name('rooms.create');
+    Route::livewire('/rooms/types', 'rooms.room-types')->name('rooms.types');
+    Route::livewire('/rooms/{room}/edit', 'rooms.room-edit')->name('rooms.edit');
 
     // Reservations
     Route::livewire('/reservations', 'reservations.reservation-list')->name('reservations.index');
+    Route::livewire('/reservations/create', 'reservations.reservation-create')->name('reservations.create');
+    Route::livewire('/reservations/{reservation}/edit', 'reservations.reservation-edit')->name('reservations.edit');
 
     // Booking Calendar
     Route::livewire('/calendar', 'calendar')->name('calendar');
 
     // Guests
     Route::livewire('/guests', 'guests.guest-list')->name('guests.index');
+    Route::livewire('/guests/create', 'guests.guest-create')->name('guests.create');
+    Route::livewire('/guests/{guest}/edit', 'guests.guest-edit')->name('guests.edit');
 
     // Operations
     Route::livewire('/check-in',  'check-in')->name('checkin.index');

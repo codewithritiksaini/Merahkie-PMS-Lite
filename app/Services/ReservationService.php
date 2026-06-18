@@ -125,6 +125,7 @@ class ReservationService
             'subtotal' => $charges['subtotal'],
             'discount' => $charges['discount'],
             'tax' => $charges['tax'],
+            'tax_rate' => $charges['tax_rate'],
             'total_amount' => $charges['total']
         ]);
 

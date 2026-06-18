@@ -5,9 +5,9 @@
             <h1 class="text-xl font-bold text-gray-900">Rooms</h1>
             <p class="text-sm text-gray-500 mt-0.5">Manage hotel rooms and their status</p>
         </div>
-        <button wire:click="openCreate" class="btn-primary">
+        <a href="{{ route('rooms.create') }}" class="btn-primary">
             <i class="fas fa-plus"></i> Add Room
-        </button>
+        </a>
     </div>
 
     {{-- Table Card --}}
@@ -73,10 +73,10 @@
                         </td>
                         <td>
                             <div class="flex items-center gap-1">
-                                <button wire:click="edit({{ $room->id }})"
-                                        class="btn-icon text-indigo-500 hover:bg-indigo-50" title="Edit">
+                                <a href="{{ route('rooms.edit', $room->id) }}"
+                                   class="btn-icon text-indigo-500 hover:bg-indigo-50" title="Edit">
                                     <i class="fas fa-edit text-sm"></i>
-                                </button>
+                                </a>
                                 <button wire:click="delete({{ $room->id }})"
                                         wire:confirm="Delete room {{ $room->room_number }}?"
                                         class="btn-icon text-red-500 hover:bg-red-50" title="Delete">
@@ -101,68 +101,5 @@
             {{ $rooms->links() }}
         </div>
         @endif
-    </div>
-
-    {{-- ===== SLIDE-OVER DRAWER ===== --}}
-    <div x-show="$wire.showDrawer" class="drawer-overlay" @click="$wire.showDrawer = false"
-         x-transition:enter="transition-opacity ease-linear duration-200"
-         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition-opacity ease-linear duration-200"
-         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         style="display:none"></div>
-
-    <div x-show="$wire.showDrawer" class="drawer-panel"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
-         style="display:none">
-        <div class="drawer-header">
-            <h3 class="text-base font-semibold text-gray-900">
-                {{ $isEditMode ? 'Edit Room' : 'Add New Room' }}
-            </h3>
-            <button @click="$wire.showDrawer = false" class="btn-icon">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="drawer-body space-y-4">
-            <div>
-                <label class="pms-label">Room Number <span class="text-red-500">*</span></label>
-                <input type="text" wire:model="room_number" class="pms-input" placeholder="e.g. 101">
-                @error('room_number') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-            </div>
-            <div>
-                <label class="pms-label">Room Type <span class="text-red-500">*</span></label>
-                <select wire:model="room_type_id" class="pms-select">
-                    <option value="">Select type...</option>
-                    @foreach($roomTypes as $type)
-                        <option value="{{ $type->id }}">{{ $type->name }}</option>
-                    @endforeach
-                </select>
-                @error('room_type_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-            </div>
-            <div>
-                <label class="pms-label">Price per Night ($) <span class="text-red-500">*</span></label>
-                <input type="number" wire:model="price" class="pms-input" placeholder="0.00" min="0" step="0.01">
-                @error('price') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-            </div>
-            <div>
-                <label class="pms-label">Status <span class="text-red-500">*</span></label>
-                <select wire:model="status" class="pms-select">
-                    <option value="Available">Available</option>
-                    <option value="Occupied">Occupied</option>
-                    <option value="Reserved">Reserved</option>
-                    <option value="Maintenance">Maintenance</option>
-                </select>
-                @error('status') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-            </div>
-        </div>
-        <div class="drawer-footer">
-            <button @click="$wire.showDrawer = false" class="btn-secondary">Cancel</button>
-            <button wire:click="store" wire:loading.attr="disabled" class="btn-primary">
-                <span wire:loading wire:target="store"><i class="fas fa-spinner fa-spin"></i></span>
-                {{ $isEditMode ? 'Update Room' : 'Create Room' }}
-            </button>
-        </div>
     </div>
 </div>

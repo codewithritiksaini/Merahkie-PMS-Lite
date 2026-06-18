@@ -70,6 +70,19 @@
             timerProgressBar: true,
         });
     });
+    @if(session('toast'))
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: @json(session('toast.type', 'success')),
+            title: @json(session('toast.message')),
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    });
+    @endif
 </script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 @stack('scripts')
