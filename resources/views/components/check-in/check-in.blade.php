@@ -1,91 +1,126 @@
-
 <div>
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    {{-- Header --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-xl font-bold text-gray-900">Check-In</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Process guest arrivals</p>
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight">Check-In Interface</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Track today's arrivals and process guest check-ins</p>
         </div>
     </div>
 
-    {{-- Summary --}}
-    <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-blue-100 text-blue-600"><i class="fas fa-calendar-day text-xl"></i></div>
+    {{-- Summary Cards --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="stat-card border border-slate-100/80 hover:shadow-md transition-all duration-200">
+            <div class="stat-icon bg-indigo-50 text-indigo-600 border border-indigo-100"><i class="fas fa-calendar-day text-lg"></i></div>
             <div>
-                <p class="text-2xl font-bold text-gray-900">{{ $todayCount }}</p>
-                <p class="text-xs text-gray-500">Arrivals Today</p>
+                <p class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ $todayCount }}</p>
+                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Arrivals Scheduled Today</p>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon bg-amber-100 text-amber-600"><i class="fas fa-clock text-xl"></i></div>
+        <div class="stat-card border border-slate-100/80 hover:shadow-md transition-all duration-200">
+            <div class="stat-icon bg-amber-50 text-amber-600 border border-amber-100"><i class="fas fa-clock text-lg"></i></div>
             <div>
-                <p class="text-2xl font-bold text-gray-900">{{ $pendingTotal }}</p>
-                <p class="text-xs text-gray-500">Pending Check-Ins</p>
+                <p class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ $pendingTotal }}</p>
+                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Pending Check-Ins</p>
             </div>
         </div>
     </div>
 
-    <div class="pms-card">
-        <div class="pms-card-header">
-            <h3 class="text-sm font-semibold text-gray-800">Pending Arrivals</h3>
-            <div class="relative max-w-xs">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
-                <input type="text" wire:model.live.debounce.300ms="search"
-                       placeholder="Search guest..." class="pms-input pl-9 py-1.5 text-sm">
+    {{-- Pending Table Card --}}
+    <div class="pms-card shadow-sm border border-slate-100/80">
+        <div class="pms-card-header flex-wrap gap-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center border border-amber-100"><i class="fas fa-door-open text-sm"></i></div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Pending Arrivals</h3>
+                    <p class="text-[10px] text-slate-400">Guests scheduled to check in today or overdue</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="relative max-w-xs w-full">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="text" wire:model.live.debounce.300ms="search"
+                           placeholder="Search guest..."
+                           class="pms-input pl-9 py-1.5 text-xs rounded-lg border border-slate-200">
+                </div>
             </div>
         </div>
+
         <div class="overflow-x-auto">
             <table class="pms-table">
                 <thead>
-                    <tr>
-                        <th>Guest</th><th>Room</th><th>Check-In Date</th><th>Check-Out</th><th>Guests</th><th>Notes</th><th>Action</th>
+                    <tr class="bg-slate-50/50 border-b border-slate-100 text-slate-500">
+                        <th class="font-bold">Guest</th>
+                        <th class="font-bold">Assigned Room</th>
+                        <th class="font-bold">Check-In Date</th>
+                        <th class="font-bold">Check-Out Date</th>
+                        <th class="font-bold">Occupancy</th>
+                        <th class="font-bold">Notes</th>
+                        <th class="font-bold text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     @forelse($arrivals as $res)
-                    <tr>
+                    <tr class="hover:bg-slate-50/40 transition-colors">
                         <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                                    <span class="text-xs font-bold text-indigo-600">{{ strtoupper(substr($res->guest->name ?? 'G', 0, 1)) }}</span>
+                            <div class="flex items-center gap-3">
+                                @php
+                                    $initials = strtoupper(substr($res->guest->name ?? 'G', 0, 1));
+                                    $gradients = [
+                                        'A' => 'from-indigo-400 to-indigo-600', 'B' => 'from-emerald-400 to-emerald-600',
+                                        'C' => 'from-blue-400 to-blue-600', 'D' => 'from-rose-400 to-rose-600',
+                                        'E' => 'from-amber-400 to-amber-600', 'F' => 'from-orange-400 to-orange-600',
+                                        'G' => 'from-teal-400 to-teal-600', 'H' => 'from-purple-400 to-purple-600',
+                                        'I' => 'from-pink-400 to-pink-600', 'J' => 'from-cyan-400 to-cyan-600',
+                                    ];
+                                    $gradient = $gradients[$initials] ?? 'from-slate-400 to-slate-600';
+                                @endphp
+                                <div class="w-8 h-8 rounded-xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0 shadow-sm border border-white">
+                                    <span class="text-xs font-black text-white">{{ $initials }}</span>
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ $res->guest->name ?? 'N/A' }}</p>
-                                    <p class="text-xs text-gray-400">{{ $res->guest->phone ?? '' }}</p>
+                                    <span class="font-bold text-slate-800 text-sm block leading-none mb-1">{{ $res->guest->name ?? 'N/A' }}</span>
+                                    <span class="text-[10px] text-slate-400 block">{{ $res->guest->phone ?? '' }}</span>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span class="font-semibold text-gray-800">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span>
-                            <p class="text-xs text-gray-400">{{ $res->rooms->map(fn($r) => optional($r->roomType)->name)->filter()->implode(', ') }}</p>
+                            <span class="font-black text-slate-800 text-sm bg-slate-50 px-2 py-0.5 rounded border border-slate-150 shadow-sm">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span>
+                            <span class="text-[10px] text-slate-400 font-medium block mt-1">{{ $res->rooms->map(fn($r) => optional($r->roomType)->name)->filter()->implode(', ') }}</span>
                         </td>
                         <td>
-                            <span class="@if(\Carbon\Carbon::parse($res->check_in_date)->isToday()) text-emerald-600 font-semibold @elseif(\Carbon\Carbon::parse($res->check_in_date)->isPast()) text-red-500 font-semibold @else text-gray-600 @endif">
+                            @php
+                                $isToday = \Carbon\Carbon::parse($res->check_in_date)->isToday();
+                                $isPast = \Carbon\Carbon::parse($res->check_in_date)->isPast();
+                            @endphp
+                            <span class="text-xs font-bold @if($isToday) text-emerald-600 @elseif($isPast) text-rose-600 @else text-slate-600 @endif">
                                 {{ \Carbon\Carbon::parse($res->check_in_date)->format('d M Y') }}
                             </span>
-                            @if(\Carbon\Carbon::parse($res->check_in_date)->isToday())
-                                <span class="badge-available ml-1">Today</span>
-                            @elseif(\Carbon\Carbon::parse($res->check_in_date)->isPast())
-                                <span class="badge-occupied ml-1">Overdue</span>
+                            @if($isToday)
+                                <span class="inline-flex items-center px-2 py-0.2 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase ml-1">Today</span>
+                            @elseif($isPast)
+                                <span class="inline-flex items-center px-2 py-0.2 rounded-full text-[9px] font-black bg-rose-50 text-rose-700 border border-rose-100 uppercase ml-1">Overdue</span>
                             @endif
                         </td>
-                        <td class="text-gray-600">{{ \Carbon\Carbon::parse($res->check_out_date)->format('d M Y') }}</td>
-                        <td class="text-gray-600">{{ $res->adults }}+{{ $res->children }}</td>
-                        <td class="text-gray-500 text-xs max-w-[120px] truncate">{{ $res->special_notes ?? '—' }}</td>
-                        <td>
+                        <td class="text-slate-500 text-xs font-medium">{{ \Carbon\Carbon::parse($res->check_out_date)->format('d M Y') }}</td>
+                        <td class="text-slate-600 text-xs font-semibold">
+                            <span class="flex items-center gap-1"><i class="fas fa-users text-slate-400 text-[10px]"></i> {{ $res->adults }} Ad, {{ $res->children }} Ch</span>
+                        </td>
+                        <td class="text-slate-500 text-[11px] max-w-[120px] truncate" title="{{ $res->special_notes }}">{{ $res->special_notes ?? '—' }}</td>
+                        <td class="text-right">
                             <button wire:click="checkIn({{ $res->id }})"
                                     wire:confirm="Check in {{ $res->guest->name ?? 'guest' }}?"
                                     wire:loading.attr="disabled"
-                                    class="btn-success btn-sm">
-                                <i class="fas fa-sign-in-alt"></i> Check In
+                                    class="btn-success btn-sm rounded-lg py-1 px-2.5 text-[11px] font-bold shadow-sm cursor-pointer">
+                                <i class="fas fa-sign-in-alt text-[10px]"></i> Check In
                             </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-16 text-center">
-                            <i class="fas fa-check-circle text-5xl text-emerald-200 mb-3 block"></i>
-                            <p class="text-gray-500 font-medium">No pending check-ins</p>
+                        <td colspan="7" class="py-16 text-center text-slate-400">
+                            <i class="fas fa-check-circle text-5xl text-emerald-100 mb-3 block"></i>
+                            <p class="text-sm font-semibold text-slate-500">No pending check-ins for today.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -93,48 +128,57 @@
             </table>
         </div>
         @if($arrivals->hasPages())
-        <div class="px-5 py-4 border-t border-gray-100">{{ $arrivals->links() }}</div>
+        <div class="px-5 py-4 border-t border-slate-100">{{ $arrivals->links() }}</div>
         @endif
     </div>
 
     {{-- Upcoming (informational, not yet actionable) --}}
-    <div class="pms-card mt-6">
+    <div class="pms-card mt-6 shadow-sm border border-slate-100/80">
         <div class="pms-card-header">
-            <h3 class="text-sm font-semibold text-gray-800">Upcoming Arrivals</h3>
-            <span class="text-xs text-gray-400">Confirmed bookings with a future check-in date</span>
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-slate-50 text-slate-500 rounded-lg flex items-center justify-center border border-slate-150"><i class="fas fa-calendar-alt text-sm"></i></div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Upcoming Arrivals</h3>
+                    <p class="text-[10px] text-slate-400">Confirmed future arrivals logs</p>
+                </div>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="pms-table">
                 <thead>
-                    <tr>
-                        <th>Guest</th><th>Room</th><th>Check-In Date</th><th>Check-Out</th><th>Guests</th>
+                    <tr class="bg-slate-50/50 border-b border-slate-100 text-slate-500">
+                        <th class="font-bold">Guest</th>
+                        <th class="font-bold">Room</th>
+                        <th class="font-bold">Check-In Date</th>
+                        <th class="font-bold">Check-Out Date</th>
+                        <th class="font-bold">Occupancy</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     @forelse($upcoming as $res)
-                    <tr class="opacity-75">
+                    <tr class="opacity-80 hover:bg-slate-50/40 transition-colors">
                         <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                                    <span class="text-xs font-bold text-gray-500">{{ strtoupper(substr($res->guest->name ?? 'G', 0, 1)) }}</span>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                                    <span class="text-xs font-bold text-slate-500">{{ strtoupper(substr($res->guest->name ?? 'G', 0, 1)) }}</span>
                                 </div>
-                                <p class="font-medium text-gray-700">{{ $res->guest->name ?? 'N/A' }}</p>
+                                <span class="font-bold text-slate-700 text-sm">{{ $res->guest->name ?? 'N/A' }}</span>
                             </div>
                         </td>
                         <td>
-                            <span class="font-semibold text-gray-700">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span>
+                            <span class="font-semibold text-slate-700 text-sm">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span>
                         </td>
-                        <td class="text-gray-600">
-                            {{ \Carbon\Carbon::parse($res->check_in_date)->format('d M Y') }}
-                            <span class="text-xs text-gray-400">({{ \Carbon\Carbon::parse($res->check_in_date)->diffForHumans() }})</span>
+                        <td class="text-slate-600 text-xs font-medium">
+                            <span>{{ \Carbon\Carbon::parse($res->check_in_date)->format('d M Y') }}</span>
+                            <span class="text-[10px] text-slate-400 font-semibold ml-1">({{ \Carbon\Carbon::parse($res->check_in_date)->diffForHumans() }})</span>
                         </td>
-                        <td class="text-gray-600">{{ \Carbon\Carbon::parse($res->check_out_date)->format('d M Y') }}</td>
-                        <td class="text-gray-600">{{ $res->adults }}+{{ $res->children }}</td>
+                        <td class="text-slate-500 text-xs font-medium">{{ \Carbon\Carbon::parse($res->check_out_date)->format('d M Y') }}</td>
+                        <td class="text-slate-600 text-xs font-semibold">{{ $res->adults }}+{{ $res->children }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-10 text-center">
-                            <p class="text-gray-400 text-sm">No upcoming confirmed bookings.</p>
+                        <td colspan="5" class="py-10 text-center text-slate-400">
+                            <p class="text-sm font-medium">No upcoming confirmed bookings.</p>
                         </td>
                     </tr>
                     @endforelse
