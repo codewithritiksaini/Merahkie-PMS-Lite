@@ -3,6 +3,7 @@
 use Livewire\Component;
 use App\Models\Room;
 use App\Models\RoomType;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component
 {
@@ -11,6 +12,13 @@ new class extends Component
     public string $room_type_id = '';
     public string $price = '';
     public string $status = 'Available';
+
+    public function boot(): void
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
 
     public function mount(Room $room): void
     {

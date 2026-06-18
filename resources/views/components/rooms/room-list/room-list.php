@@ -4,12 +4,20 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Room;
 use App\Models\RoomType;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component
 {
     use WithPagination;
 
     public string $search = '';
+
+    public function boot(): void
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
 
     public function updatedSearch(): void { $this->resetPage(); }
 

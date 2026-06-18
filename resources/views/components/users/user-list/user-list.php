@@ -5,6 +5,7 @@ use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component
 {
@@ -14,6 +15,13 @@ new class extends Component
     public bool $showDrawer = false, $isEditMode = false;
     public ?int $userId = null;
     public string $name = '', $email = '', $password = '', $role_id = '', $status = 'active';
+
+    public function boot(): void
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
 
     public function updatedSearch(): void { $this->resetPage(); }
 

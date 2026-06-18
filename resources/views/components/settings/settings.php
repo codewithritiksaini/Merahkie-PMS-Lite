@@ -5,11 +5,12 @@ use App\Models\Setting;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component
 {
     public string $activeTab = 'hotel';
-
+    
     // Hotel Info
     public string $hotel_name     = '';
     public string $hotel_address  = '';
@@ -42,6 +43,13 @@ new class extends Component
     public string $smtp_from_address = '';
     public string $smtp_from_name    = '';
     public string $test_email        = '';
+
+    public function boot(): void
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
 
     public function mount(): void
     {

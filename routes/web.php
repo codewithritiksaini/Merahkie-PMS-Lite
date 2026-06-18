@@ -15,11 +15,18 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::livewire('/dashboard', 'dashboard')->name('dashboard');
 
-    // Rooms
-    Route::livewire('/rooms', 'rooms.room-list')->name('rooms.index');
-    Route::livewire('/rooms/create', 'rooms.room-create')->name('rooms.create');
-    Route::livewire('/rooms/types', 'rooms.room-types')->name('rooms.types');
-    Route::livewire('/rooms/{room}/edit', 'rooms.room-edit')->name('rooms.edit');
+    // Admin-only Routes
+    Route::middleware('admin')->group(function () {
+        // Rooms
+        Route::livewire('/rooms', 'rooms.room-list')->name('rooms.index');
+        Route::livewire('/rooms/create', 'rooms.room-create')->name('rooms.create');
+        Route::livewire('/rooms/types', 'rooms.room-types')->name('rooms.types');
+        Route::livewire('/rooms/{room}/edit', 'rooms.room-edit')->name('rooms.edit');
+
+        // Users & Settings
+        Route::livewire('/users',    'users.user-list')->name('users.index');
+        Route::livewire('/settings', 'settings')->name('settings');
+    });
 
     // Reservations
     Route::livewire('/reservations', 'reservations.reservation-list')->name('reservations.index');
@@ -45,10 +52,6 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/reports/daily',     'reports.daily')->name('reports.daily');
     Route::livewire('/reports/occupancy', 'reports.occupancy')->name('reports.occupancy');
     Route::livewire('/reports/revenue',   'reports.revenue')->name('reports.revenue');
-
-    // Admin
-    Route::livewire('/users',    'users.user-list')->name('users.index');
-    Route::livewire('/settings', 'settings')->name('settings');
 
     // Invoice PDF actions (controller still needed for DomPDF)
     Route::get('/invoice/download/{id}', [\App\Http\Controllers\InvoiceController::class, 'download'])->name('invoice.download');
