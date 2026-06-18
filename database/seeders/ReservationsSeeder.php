@@ -23,9 +23,10 @@ class ReservationsSeeder extends Seeder
             $statusOptions = ['Confirmed', 'Checked-In', 'Checked-Out', 'Cancelled'];
             $status = $statusOptions[array_rand($statusOptions)];
 
-            Reservation::create([
+            $room = $rooms->random();
+
+            $reservation = Reservation::create([
                 'guest_id' => $guests->random()->id,
-                'room_id' => $rooms->random()->id,
                 'check_in_date' => $checkIn,
                 'check_out_date' => $checkOut,
                 'adults' => rand(1, 2),
@@ -33,6 +34,8 @@ class ReservationsSeeder extends Seeder
                 'special_notes' => 'Seeded reservation',
                 'status' => $status,
             ]);
+
+            $reservation->rooms()->attach($room->id, ['price' => $room->price]);
         }
     }
 }

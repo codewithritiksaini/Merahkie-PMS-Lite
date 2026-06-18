@@ -21,22 +21,29 @@ class ReservationService
 
     public function saveReservation($id, $data, $isEditMode)
     {
-        if (!$isEditMode) {
-            $room = Room::find($data['room_id']);
-            if ($room && $room->status === 'Available') {
+        $roomIds = $data['room_ids'];
+        unset($data['room_ids']);
+
+        $reservation = $this->reservationRepository->createOrUpdate($id, $data);
+
+        $pivotData = [];
+        foreach (Room::whereIn('id', $roomIds)->get() as $room) {
+            $pivotData[$room->id] = ['price' => $room->price];
+
+            if (!$isEditMode && $room->status === 'Available') {
                 $room->update(['status' => 'Reserved']);
             }
         }
+        $reservation->rooms()->sync($pivotData);
 
-        return $this->reservationRepository->createOrUpdate($id, $data);
+        return $reservation;
     }
 
     public function deleteReservation($id)
     {
         $res = $this->reservationRepository->findById($id);
         if ($res->status != 'Checked-Out' && $res->status != 'Cancelled') {
-            $room = Room::find($res->room_id);
-            if ($room) {
+            foreach ($res->rooms as $room) {
                 $room->update(['status' => 'Available']);
             }
         }
@@ -58,9 +65,8 @@ class ReservationService
         // Change Reservation Status
         $res->update(['status' => 'Checked-In']);
 
-        // Change Room Status
-        $room = Room::find($res->room_id);
-        if ($room) {
+        // Change Room Status for every room in this booking
+        foreach ($res->rooms as $room) {
             $room->update(['status' => 'Occupied']);
         }
 
@@ -89,23 +95,25 @@ class ReservationService
             throw new \Exception('No Check-In record found for this reservation.');
         }
 
-        // Calculate nights
+        // Calculate nights actually stayed (a partial day counts as a full night)
         $checkInDate = \Carbon\Carbon::parse($res->check_in_date);
         $checkOutDate = now();
-        $nights = $checkInDate->diffInDays($checkOutDate) == 0 ? 1 : $checkInDate->diffInDays($checkOutDate);
+        $nights = max(1, (int) ceil($checkInDate->diffInDays($checkOutDate)));
 
-        // Calculate charges
-        $roomRate = $res->room->price;
-        $subtotal = $nights * $roomRate;
-        $tax = $subtotal * 0.10; // 10% tax example
-        $totalAmount = $subtotal + $tax;
+        // Calculate charges (rooms + discount + tax)
+        $charges = $res->calculateCharges($nights);
+
+        $totalPaid = $res->total_paid;
+        if ($totalPaid < $charges['total']) {
+            $remaining = round($charges['total'] - $totalPaid, 2);
+            throw new \Exception("Guest still owes \${$remaining}. Please collect the remaining payment before check-out.");
+        }
 
         // Change Reservation Status
         $res->update(['status' => 'Checked-Out']); // 'Completed' conceptually
 
-        // Change Room Status
-        $room = Room::find($res->room_id);
-        if ($room) {
+        // Change Room Status for every room in this booking
+        foreach ($res->rooms as $room) {
             $room->update(['status' => 'Available']);
         }
 
@@ -114,9 +122,10 @@ class ReservationService
             'reservation_id' => $reservationId,
             'checkout_datetime' => $checkOutDate,
             'nights' => $nights,
-            'subtotal' => $subtotal,
-            'tax' => $tax,
-            'total_amount' => $totalAmount
+            'subtotal' => $charges['subtotal'],
+            'discount' => $charges['discount'],
+            'tax' => $charges['tax'],
+            'total_amount' => $charges['total']
         ]);
 
         // Create Invoice

@@ -183,7 +183,7 @@
                                 <span class="font-medium text-gray-800">{{ $res->guest->name ?? 'N/A' }}</span>
                             </div>
                         </td>
-                        <td class="text-gray-600">{{ $res->room->room_number ?? 'N/A' }}</td>
+                        <td class="text-gray-600">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</td>
                         <td class="text-gray-600">{{ \Carbon\Carbon::parse($res->check_in_date)->format('d M Y') }}</td>
                         <td class="text-gray-600">{{ \Carbon\Carbon::parse($res->check_out_date)->format('d M Y') }}</td>
                         <td>

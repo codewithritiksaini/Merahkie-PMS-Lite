@@ -21,7 +21,7 @@ new class extends Component
 
     public function render(): mixed
     {
-        $checkedIn = Reservation::with(['guest', 'room'])
+        $checkedIn = Reservation::with(['guest', 'rooms', 'payments'])
             ->where('status', 'Checked-In')
             ->when($this->search, fn ($q) =>
                 $q->whereHas('guest', fn ($qg) =>

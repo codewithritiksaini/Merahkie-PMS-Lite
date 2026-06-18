@@ -22,7 +22,7 @@ new class extends Component
         $occupancyPercent = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100) : 0;
         $housekeepingPending = Housekeeping::where('status', '!=', 'Clean')->count();
 
-        $recentReservations = Reservation::with(['guest', 'room'])
+        $recentReservations = Reservation::with(['guest', 'rooms'])
             ->latest()
             ->limit(8)
             ->get();

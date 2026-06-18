@@ -15,7 +15,7 @@ new class extends Component
 
     public function render(): mixed
     {
-        $invoices = Invoice::with(['checkout.reservation.guest', 'checkout.reservation.room'])
+        $invoices = Invoice::with(['checkout.reservation.guest', 'checkout.reservation.rooms'])
             ->when($this->search, fn ($q) =>
                 $q->whereHas('checkout.reservation.guest', fn ($qg) =>
                     $qg->where('name', 'like', "%{$this->search}%")

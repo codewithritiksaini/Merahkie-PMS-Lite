@@ -11,7 +11,7 @@ class InvoiceController extends Controller
 {
     public function download($id)
     {
-        $invoice      = Invoice::with(['checkout.reservation.guest', 'checkout.reservation.room.roomType'])->findOrFail($id);
+        $invoice      = Invoice::with(['checkout.reservation.guest', 'checkout.reservation.rooms.roomType', 'checkout.reservation.payments'])->findOrFail($id);
         $hotelName    = Setting::get('hotel_name',    'Merahkie PMS Lite');
         $invoiceFooter = Setting::get('invoice_footer', 'Thank you for staying with us!');
 
@@ -21,7 +21,7 @@ class InvoiceController extends Controller
 
     public function view($id)
     {
-        $invoice      = Invoice::with(['checkout.reservation.guest', 'checkout.reservation.room.roomType'])->findOrFail($id);
+        $invoice      = Invoice::with(['checkout.reservation.guest', 'checkout.reservation.rooms.roomType', 'checkout.reservation.payments'])->findOrFail($id);
         $hotelName    = Setting::get('hotel_name',    'Merahkie PMS Lite');
         $invoiceFooter = Setting::get('invoice_footer', 'Thank you for staying with us!');
 

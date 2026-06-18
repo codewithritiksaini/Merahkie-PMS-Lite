@@ -8,11 +8,11 @@ class ReservationRepository implements ReservationRepositoryInterface
 {
     public function getAllPaginated($search, $perPage = 10)
     {
-        return Reservation::with(['guest', 'room'])
+        return Reservation::with(['guest', 'rooms', 'payments'])
             ->whereHas('guest', function($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%');
             })
-            ->orWhereHas('room', function($q) use ($search) {
+            ->orWhereHas('rooms', function($q) use ($search) {
                 $q->where('room_number', 'like', '%' . $search . '%');
             })
             ->paginate($perPage);
@@ -35,7 +35,7 @@ class ReservationRepository implements ReservationRepositoryInterface
 
     public function getEventsByDateRange($start, $end)
     {
-        return Reservation::with(['guest', 'room'])
+        return Reservation::with(['guest', 'rooms'])
             ->whereBetween('check_in_date', [$start, $end])
             ->orWhereBetween('check_out_date', [$start, $end])
             ->get();

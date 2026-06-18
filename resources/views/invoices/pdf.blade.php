@@ -38,10 +38,12 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach($invoice->checkout->reservation->rooms as $room)
                 <tr>
-                    <td>Room Number</td>
-                    <td>{{ $invoice->checkout->reservation->room->room_number }} ({{ $invoice->checkout->reservation->room->roomType->name ?? '' }})</td>
+                    <td>Room {{ $room->room_number }} ({{ $room->roomType->name ?? '' }})</td>
+                    <td>${{ number_format($room->pivot->price ?? $room->price, 2) }} / night</td>
                 </tr>
+                @endforeach
                 <tr>
                     <td>Check-In</td>
                     <td>{{ \Carbon\Carbon::parse($invoice->checkout->reservation->check_in_date)->format('M d, Y') }}</td>
@@ -54,10 +56,6 @@
                     <td>Total Nights</td>
                     <td>{{ $invoice->checkout->nights }}</td>
                 </tr>
-                <tr>
-                    <td>Room Rate / Night</td>
-                    <td>${{ number_format($invoice->checkout->reservation->room->price, 2) }}</td>
-                </tr>
             </tbody>
         </table>
 
@@ -66,6 +64,12 @@
                 <td style="text-align: right; width: 80%;"><strong>Subtotal:</strong></td>
                 <td style="text-align: right;">${{ number_format($invoice->checkout->subtotal, 2) }}</td>
             </tr>
+            @if($invoice->checkout->discount > 0)
+            <tr>
+                <td style="text-align: right;"><strong>Discount:</strong></td>
+                <td style="text-align: right;">-${{ number_format($invoice->checkout->discount, 2) }}</td>
+            </tr>
+            @endif
             <tr>
                 <td style="text-align: right;"><strong>Tax (10%):</strong></td>
                 <td style="text-align: right;">${{ number_format($invoice->checkout->tax, 2) }}</td>
@@ -75,7 +79,26 @@
                 <td style="text-align: right;"><strong>${{ number_format($invoice->checkout->total_amount, 2) }}</strong></td>
             </tr>
         </table>
-        
+
+        <table class="table" style="margin-top: 20px;">
+            <thead>
+                <tr><th>Payment Date</th><th>Method</th><th class="text-right">Amount</th></tr>
+            </thead>
+            <tbody>
+                @foreach($invoice->checkout->reservation->payments as $payment)
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($payment->paid_at)->format('M d, Y h:i A') }}</td>
+                    <td>{{ $payment->payment_type }}</td>
+                    <td class="text-right">${{ number_format($payment->amount, 2) }}</td>
+                </tr>
+                @endforeach
+                <tr>
+                    <td colspan="2" style="text-align: right;"><strong>Total Paid:</strong></td>
+                    <td class="text-right"><strong>${{ number_format($invoice->checkout->reservation->payments->sum('amount'), 2) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
         <p style="margin-top: 50px; text-align: center; color: #777;">{{ $invoiceFooter ?? 'Thank you for staying with us!' }}</p>
     </div>
 </body>

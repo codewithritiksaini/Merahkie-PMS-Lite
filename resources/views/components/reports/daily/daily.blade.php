@@ -106,7 +106,7 @@
                     @php $res = optional($co->reservation); @endphp
                     <tr>
                         <td class="font-medium text-gray-800">{{ optional($res->guest)->name ?? '—' }}</td>
-                        <td class="text-gray-600">{{ optional($res->room)->room_number ?? '—' }}</td>
+                        <td class="text-gray-600">{{ $res->rooms ? ($res->rooms->pluck('room_number')->implode(', ') ?: '—') : '—' }}</td>
                         <td class="text-gray-600">
                             {{ $res->check_in_date && $res->check_out_date
                                 ? \Carbon\Carbon::parse($res->check_in_date)->diffInDays(\Carbon\Carbon::parse($res->check_out_date)) . ' nights'

@@ -22,7 +22,7 @@ new class extends Component
 
     public function render(): mixed
     {
-        $arrivals = Reservation::with(['guest', 'room'])
+        $arrivals = Reservation::with(['guest', 'rooms.roomType'])
             ->whereIn('status', ['Confirmed', 'Reserved'])
             ->whereDate('check_in_date', '<=', Carbon::today())
             ->when($this->search, fn ($q) =>
@@ -33,9 +33,21 @@ new class extends Component
             ->orderBy('check_in_date')
             ->paginate(15);
 
+        $upcoming = Reservation::with(['guest', 'rooms.roomType'])
+            ->whereIn('status', ['Confirmed', 'Reserved'])
+            ->whereDate('check_in_date', '>', Carbon::today())
+            ->when($this->search, fn ($q) =>
+                $q->whereHas('guest', fn ($qg) =>
+                    $qg->where('name', 'like', "%{$this->search}%")
+                )
+            )
+            ->orderBy('check_in_date')
+            ->limit(10)
+            ->get();
+
         $todayCount  = Reservation::whereIn('status', ['Confirmed', 'Reserved'])->whereDate('check_in_date', Carbon::today())->count();
         $pendingTotal = Reservation::whereIn('status', ['Confirmed', 'Reserved'])->whereDate('check_in_date', '<=', Carbon::today())->count();
 
-        return $this->view(compact('arrivals', 'todayCount', 'pendingTotal'));
+        return $this->view(compact('arrivals', 'upcoming', 'todayCount', 'pendingTotal'));
     }
 };

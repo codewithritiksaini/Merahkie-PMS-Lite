@@ -56,8 +56,8 @@
                             </div>
                         </td>
                         <td>
-                            <span class="font-semibold text-gray-800">{{ $res->room->room_number ?? 'N/A' }}</span>
-                            <p class="text-xs text-gray-400">{{ $res->room->roomType->name ?? '' }}</p>
+                            <span class="font-semibold text-gray-800">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span>
+                            <p class="text-xs text-gray-400">{{ $res->rooms->map(fn($r) => optional($r->roomType)->name)->filter()->implode(', ') }}</p>
                         </td>
                         <td>
                             <span class="@if(\Carbon\Carbon::parse($res->check_in_date)->isToday()) text-emerald-600 font-semibold @elseif(\Carbon\Carbon::parse($res->check_in_date)->isPast()) text-red-500 font-semibold @else text-gray-600 @endif">
@@ -95,5 +95,51 @@
         @if($arrivals->hasPages())
         <div class="px-5 py-4 border-t border-gray-100">{{ $arrivals->links() }}</div>
         @endif
+    </div>
+
+    {{-- Upcoming (informational, not yet actionable) --}}
+    <div class="pms-card mt-6">
+        <div class="pms-card-header">
+            <h3 class="text-sm font-semibold text-gray-800">Upcoming Arrivals</h3>
+            <span class="text-xs text-gray-400">Confirmed bookings with a future check-in date</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="pms-table">
+                <thead>
+                    <tr>
+                        <th>Guest</th><th>Room</th><th>Check-In Date</th><th>Check-Out</th><th>Guests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($upcoming as $res)
+                    <tr class="opacity-75">
+                        <td>
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                    <span class="text-xs font-bold text-gray-500">{{ strtoupper(substr($res->guest->name ?? 'G', 0, 1)) }}</span>
+                                </div>
+                                <p class="font-medium text-gray-700">{{ $res->guest->name ?? 'N/A' }}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-semibold text-gray-700">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span>
+                        </td>
+                        <td class="text-gray-600">
+                            {{ \Carbon\Carbon::parse($res->check_in_date)->format('d M Y') }}
+                            <span class="text-xs text-gray-400">({{ \Carbon\Carbon::parse($res->check_in_date)->diffForHumans() }})</span>
+                        </td>
+                        <td class="text-gray-600">{{ \Carbon\Carbon::parse($res->check_out_date)->format('d M Y') }}</td>
+                        <td class="text-gray-600">{{ $res->adults }}+{{ $res->children }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="py-10 text-center">
+                            <p class="text-gray-400 text-sm">No upcoming confirmed bookings.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

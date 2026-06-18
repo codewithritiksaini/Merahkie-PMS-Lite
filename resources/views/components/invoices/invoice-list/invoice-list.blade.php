@@ -51,7 +51,7 @@
                     <tr>
                         <td><span class="text-xs font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">#{{ $inv->id }}</span></td>
                         <td class="font-medium text-gray-800">{{ optional($res->guest)->name ?? '—' }}</td>
-                        <td class="text-gray-600">{{ optional($res->room)->room_number ?? '—' }}</td>
+                        <td class="text-gray-600">{{ $res->rooms ? ($res->rooms->pluck('room_number')->implode(', ') ?: '—') : '—' }}</td>
                         <td class="font-semibold text-gray-900">${{ number_format(optional($inv->checkout)->total_amount, 2) }}</td>
                         <td>
                             <span class="{{ ($inv->status ?? 'Paid') === 'Paid' ? 'badge-checkedin' : 'badge-maintenance' }}">

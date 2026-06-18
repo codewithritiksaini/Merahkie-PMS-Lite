@@ -7,12 +7,12 @@ new class extends Component
 {
     public function getEvents(): array
     {
-        return Reservation::with(['guest', 'room'])
+        return Reservation::with(['guest', 'rooms'])
             ->whereIn('status', ['Confirmed', 'Checked-In', 'Reserved'])
             ->get()
             ->map(fn ($r) => [
                 'id'    => $r->id,
-                'title' => (optional($r->guest)->name ?? 'Guest') . ' — Room ' . (optional($r->room)->room_number ?? '?'),
+                'title' => (optional($r->guest)->name ?? 'Guest') . ' — Room ' . ($r->rooms->pluck('room_number')->implode(', ') ?: '?'),
                 'start' => $r->check_in_date,
                 'end'   => $r->check_out_date,
                 'color' => match($r->status) {
@@ -24,7 +24,7 @@ new class extends Component
                 'extendedProps' => [
                     'status' => $r->status,
                     'guest'  => optional($r->guest)->name ?? '',
-                    'room'   => optional($r->room)->room_number ?? '',
+                    'room'   => $r->rooms->pluck('room_number')->implode(', '),
                 ],
             ])
             ->toArray();

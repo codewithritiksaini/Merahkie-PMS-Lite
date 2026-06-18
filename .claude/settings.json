@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan tinker '--execute= *)",
+      "Bash(vendor/bin/pint --test app/Models/Payment.php app/Models/Room.php app/Models/Reservation.php app/Repositories/ReservationRepository.php \"resources/views/components/reservations/reservation-list/reservation-list.php\" database/migrations/2026_06_18_000001_create_payments_table.php)",
+      "Bash(php artisan *)"
+    ]
+  }
+}

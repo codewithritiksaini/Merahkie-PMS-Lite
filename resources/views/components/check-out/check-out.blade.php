@@ -37,7 +37,7 @@
             <table class="pms-table">
                 <thead>
                     <tr>
-                        <th>Guest</th><th>Room</th><th>Check-In</th><th>Check-Out Due</th><th>Nights</th><th>Action</th>
+                        <th>Guest</th><th>Room</th><th>Check-In</th><th>Check-Out Due</th><th>Nights</th><th>Balance</th><th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,7 +59,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="font-semibold text-gray-800">{{ $res->room->room_number ?? 'N/A' }}</span></td>
+                        <td><span class="font-semibold text-gray-800">{{ $res->rooms->pluck('room_number')->implode(', ') ?: 'N/A' }}</span></td>
                         <td class="text-gray-600">{{ \Carbon\Carbon::parse($res->check_in_date)->format('d M Y') }}</td>
                         <td>
                             <span class="{{ $isOverdue ? 'text-red-600 font-semibold' : ($isDueToday ? 'text-amber-600 font-semibold' : 'text-gray-600') }}">
@@ -71,6 +71,12 @@
                         </td>
                         <td class="text-gray-600">{{ $nights }} nights</td>
                         <td>
+                            @php $balance = $res->balance_due; @endphp
+                            <span class="text-xs font-semibold {{ $balance > 0 ? 'text-red-600' : 'text-emerald-600' }}">
+                                {{ $balance > 0 ? '$' . number_format($balance, 2) . ' due' : 'Paid' }}
+                            </span>
+                        </td>
+                        <td>
                             <button wire:click="checkOut({{ $res->id }})"
                                     wire:confirm="Check out {{ $res->guest->name ?? 'guest' }}? This will generate an invoice."
                                     wire:loading.attr="disabled"
@@ -81,7 +87,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-16 text-center">
+                        <td colspan="7" class="py-16 text-center">
                             <i class="fas fa-hotel text-5xl text-gray-200 mb-3 block"></i>
                             <p class="text-gray-500 font-medium">No guests currently checked in</p>
                         </td>

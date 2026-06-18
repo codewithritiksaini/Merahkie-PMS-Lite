@@ -30,7 +30,7 @@ new class extends Component
         $occupancyRate   = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100) : 0;
         $housekeepingPending = Housekeeping::where('status', '!=', 'Clean')->count();
 
-        $recentCheckOuts = CheckOut::with(['reservation.guest', 'reservation.room'])
+        $recentCheckOuts = CheckOut::with(['reservation.guest', 'reservation.rooms'])
             ->whereDate('checkout_datetime', $day)
             ->latest()
             ->limit(10)

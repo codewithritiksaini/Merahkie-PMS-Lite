@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CheckOut extends Model
 {
     protected $table = 'checkouts';
-    protected $fillable = ['reservation_id', 'checkout_datetime', 'nights', 'subtotal', 'tax', 'total_amount'];
+    protected $fillable = ['reservation_id', 'checkout_datetime', 'nights', 'subtotal', 'discount', 'tax', 'total_amount'];
     
     protected $casts = [
         'checkout_datetime' => 'datetime',
