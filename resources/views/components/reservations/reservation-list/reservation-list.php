@@ -92,6 +92,24 @@ new class extends Component
             }
         }
 
+        // Checked-In / Checked-Out are operational states with side effects (room status,
+        // payment gate, invoice creation) — they must only be reached via checkIn()/checkOut(),
+        // never set directly through this form (even by editing the dropdown via devtools).
+        $allowedTransitions = [
+            'Confirmed'   => ['Confirmed', 'Cancelled'],
+            'Cancelled'   => ['Cancelled', 'Confirmed'],
+            'Checked-In'  => ['Checked-In'],
+            'Checked-Out' => ['Checked-Out'],
+        ];
+        $currentStatus = $this->isEditMode
+            ? (Reservation::find($this->reservationId)?->status ?? 'Confirmed')
+            : 'Confirmed';
+
+        if (!in_array($this->status, $allowedTransitions[$currentStatus] ?? [$currentStatus])) {
+            $this->addError('status', 'Use the Check-In / Check-Out actions to change this status.');
+            return;
+        }
+
         $reservation = $service->saveReservation($this->reservationId, [
             'guest_id'       => $this->guest_id,
             'room_ids'       => $this->room_ids,

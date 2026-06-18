@@ -130,4 +130,95 @@
             </table>
         </div>
     </div>
+
+    {{-- Daily Cash Sheet --}}
+    <div class="pms-card mt-6">
+        <div class="pms-card-header">
+            <h3 class="text-sm font-semibold text-gray-800">Daily Cash Sheet — {{ \Carbon\Carbon::parse($date)->format('d M Y, l') }}</h3>
+            <a href="{{ route('reports.daily-cash-sheet.download', ['date' => $date]) }}" target="_blank" class="btn-secondary btn-sm">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="pms-table">
+                <thead>
+                    <tr>
+                        <th>Room No.</th><th>Name</th><th>Rent</th><th>Tax</th><th>Misc. Chgs</th>
+                        <th>Arrv. Date</th><th>Dept. Date</th><th>Bal. Due</th><th>Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($cashSheet['rows'] as $row)
+                    <tr class="{{ $row['name'] ? '' : 'text-gray-300' }}">
+                        <td class="font-medium {{ $row['name'] ? 'text-gray-800' : 'text-gray-400' }}">{{ $row['room_number'] }}</td>
+                        <td class="{{ $row['name'] ? 'text-gray-800 font-medium' : 'text-gray-300' }}">{{ $row['name'] ?? '—' }}</td>
+                        <td class="text-gray-600">{{ $row['rent'] !== null ? '$' . number_format($row['rent'], 2) : '—' }}</td>
+                        <td class="text-gray-600">{{ $row['tax'] !== null ? '$' . number_format($row['tax'], 2) : '—' }}</td>
+                        <td class="text-gray-400">{{ $row['misc'] ?? '—' }}</td>
+                        <td class="text-gray-600">{{ $row['arrival_date'] ? \Carbon\Carbon::parse($row['arrival_date'])->format('d M Y') : '—' }}</td>
+                        <td class="text-gray-600">{{ $row['departure_date'] ? \Carbon\Carbon::parse($row['departure_date'])->format('d M Y') : '—' }}</td>
+                        <td class="{{ ($row['balance_due'] ?? 0) > 0 ? 'text-red-600 font-semibold' : 'text-gray-600' }}">{{ $row['balance_due'] !== null ? '$' . number_format($row['balance_due'], 2) : '—' }}</td>
+                        <td class="text-gray-600">{{ $row['paid'] !== null ? '$' . number_format($row['paid'], 2) : '—' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-4 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div><span class="text-gray-500">Total Cash:</span> <span class="font-semibold text-gray-900">${{ number_format($cashSheet['totals']['cash'], 2) }}</span></div>
+            <div><span class="text-gray-500">Total Card:</span> <span class="font-semibold text-gray-900">${{ number_format($cashSheet['totals']['card'], 2) }}</span></div>
+            <div><span class="text-gray-500">Total UPI:</span> <span class="font-semibold text-gray-900">${{ number_format($cashSheet['totals']['upi'], 2) }}</span></div>
+            <div><span class="text-gray-500">Grand Total:</span> <span class="font-semibold text-emerald-600">${{ number_format($cashSheet['totals']['grand_total'], 2) }}</span></div>
+        </div>
+    </div>
+
+    {{-- Range export --}}
+    <div class="pms-card mt-6 p-5">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Export a Date Range</h3>
+        <p class="text-xs text-gray-500 mb-3">Generates one Daily Cash Sheet page per day in the selected range (PDF).</p>
+        <div class="flex flex-wrap items-end gap-3">
+            <div>
+                <label class="pms-label">From</label>
+                <input type="date" wire:model="rangeFrom" class="pms-input py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="pms-label">To</label>
+                <input type="date" wire:model="rangeTo" class="pms-input py-1.5 text-sm">
+            </div>
+            <a href="{{ route('reports.daily-cash-sheet.download-range', ['from' => $rangeFrom, 'to' => $rangeTo]) }}"
+               target="_blank" class="btn-primary btn-sm">
+                <i class="fas fa-file-pdf"></i> Download Range PDF
+            </a>
+        </div>
+    </div>
+
+    {{-- Auto-email schedule --}}
+    <div class="pms-card mt-6 p-5">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Email Automation</h3>
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl mb-4">
+            <div>
+                <p class="font-medium text-gray-800">Auto-send Daily Cash Sheet by Email</p>
+                <p class="text-sm text-gray-500">Today's report will be emailed automatically at the time set below</p>
+            </div>
+            <button wire:click="$toggle('daily_report_auto_send')"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {{ $daily_report_auto_send ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $daily_report_auto_send ? 'translate-x-6' : 'translate-x-1' }}"></span>
+            </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+                <label class="pms-label">Send to Email <span class="text-gray-400 font-normal">(comma-separated for multiple)</span></label>
+                <input type="text" wire:model="daily_report_email" class="pms-input" placeholder="manager@hotel.com, accounts@hotel.com">
+                @error('daily_report_email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="pms-label">Send Time</label>
+                <input type="time" wire:model="daily_report_time" class="pms-input">
+                @error('daily_report_time') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+        <div class="flex justify-end pt-4">
+            <button wire:click="saveEmailSchedule" class="btn-primary"><i class="fas fa-save"></i> Save Email Schedule</button>
+        </div>
+    </div>
 </div>

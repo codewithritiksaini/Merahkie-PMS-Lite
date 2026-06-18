@@ -46,4 +46,8 @@ Route::middleware('auth')->group(function () {
     // Invoice PDF actions (controller still needed for DomPDF)
     Route::get('/invoice/download/{id}', [\App\Http\Controllers\InvoiceController::class, 'download'])->name('invoice.download');
     Route::get('/invoice/view/{id}',     [\App\Http\Controllers\InvoiceController::class, 'view'])->name('invoice.view');
+
+    // Daily Cash Sheet PDF actions
+    Route::get('/reports/daily-cash-sheet/download',       [\App\Http\Controllers\DailyCashSheetController::class, 'download'])->name('reports.daily-cash-sheet.download');
+    Route::get('/reports/daily-cash-sheet/download-range', [\App\Http\Controllers\DailyCashSheetController::class, 'downloadRange'])->name('reports.daily-cash-sheet.download-range');
 });

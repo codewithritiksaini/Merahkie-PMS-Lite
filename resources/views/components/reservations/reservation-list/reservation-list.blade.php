@@ -313,12 +313,18 @@
                 @endif
                 <div class="col-span-2">
                     <label class="pms-label">Status</label>
-                    <select wire:model="status" class="pms-select">
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Checked-In">Checked-In</option>
-                        <option value="Checked-Out">Checked-Out</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
+                    @if($isEditMode && in_array($status, ['Checked-In', 'Checked-Out']))
+                        <div class="pms-input bg-gray-50 text-gray-500 flex items-center justify-between">
+                            <span>{{ $status }}</span>
+                            <span class="text-xs text-gray-400">Use Check-In / Check-Out actions to change</span>
+                        </div>
+                    @else
+                        <select wire:model="status" class="pms-select">
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    @endif
+                    @error('status') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="pms-label">Discount Type</label>

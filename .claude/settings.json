@@ -3,7 +3,23 @@
     "allow": [
       "Bash(php artisan tinker '--execute= *)",
       "Bash(vendor/bin/pint --test app/Models/Payment.php app/Models/Room.php app/Models/Reservation.php app/Repositories/ReservationRepository.php \"resources/views/components/reservations/reservation-list/reservation-list.php\" database/migrations/2026_06_18_000001_create_payments_table.php)",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(crontab -l)",
+      "Bash(php -l app/Services/DailyCashSheetService.php)",
+      "Bash(php -l \"resources/views/components/reports/daily/daily.php\")",
+      "Bash(php -l app/Http/Controllers/DailyCashSheetController.php)",
+      "Bash(php -l app/Console/Commands/SendDailyCashSheetReport.php)",
+      "Bash(php -l routes/console.php)",
+      "Bash(curl -s -c /tmp/cookies.txt -b /tmp/cookies.txt -o /tmp/single.pdf -w \"Single date PDF status: %{http_code}, size: %{size_download} bytes\\\\n\" \"http://127.0.0.1:8000/reports/daily-cash-sheet/download?date=2026-06-21\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s -c /tmp/cookies.txt -b /tmp/cookies.txt -o /tmp/range.pdf -w \"Range PDF status: %{http_code}, size: %{size_download} bytes\\\\n\" \"http://127.0.0.1:8000/reports/daily-cash-sheet/download-range?from=2026-06-15&to=2026-06-22\")",
+      "Bash(pdftotext /tmp/single.pdf -)",
+      "Bash(pdftotext /tmp/range.pdf -)",
+      "Bash(pdfinfo /tmp/range.pdf)",
+      "Bash(pdfinfo /tmp/single.pdf)",
+      "Read(//var/log/**)",
+      "Bash(journalctl -u cron --since \"2 minutes ago\")",
+      "Bash(journalctl _COMM=cron --since \"2 minutes ago\")"
     ]
   }
 }
