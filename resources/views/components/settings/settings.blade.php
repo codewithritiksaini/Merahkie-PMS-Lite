@@ -9,7 +9,7 @@
         {{-- Tab sidebar --}}
         <div class="lg:w-52 shrink-0">
             <div class="pms-card p-2">
-                @foreach([['hotel','fas fa-hotel','Hotel Info'],['preferences','fas fa-sliders-h','Preferences'],['notifications','fas fa-bell','Notifications'],['invoice','fas fa-file-invoice','Invoice']] as [$tab,$icon,$label])
+                @foreach([['hotel','fas fa-hotel','Hotel Info'],['preferences','fas fa-sliders-h','Preferences'],['notifications','fas fa-bell','Notifications'],['invoice','fas fa-file-invoice','Invoice'],['email','fas fa-envelope','Email (SMTP)']] as [$tab,$icon,$label])
                 <button wire:click="setTab('{{ $tab }}')"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $activeTab === $tab ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50' }}">
                     <i class="{{ $icon }} w-4 text-center"></i>
@@ -125,6 +125,77 @@
                 </div>
                 <div class="flex justify-end pt-2">
                     <button wire:click="saveInvoice" class="btn-primary"><i class="fas fa-save"></i> Save Invoice Settings</button>
+                </div>
+            </div>
+
+            @elseif($activeTab === 'email')
+            <div class="pms-card p-6 space-y-5">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div>
+                        <p class="font-medium text-gray-800">Enable SMTP Email</p>
+                        <p class="text-sm text-gray-500">Use these settings to send emails instead of the system default</p>
+                    </div>
+                    <button wire:click="$toggle('smtp_enabled')"
+                            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {{ $smtp_enabled ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $smtp_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                    </button>
+                </div>
+
+                <h2 class="text-base font-semibold text-gray-900 mb-1">SMTP Configuration</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="sm:col-span-2">
+                        <label class="pms-label">SMTP Host <span class="text-red-500">*</span></label>
+                        <input type="text" wire:model="smtp_host" class="pms-input" placeholder="smtp.gmail.com">
+                        @error('smtp_host') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="pms-label">Port <span class="text-red-500">*</span></label>
+                        <input type="number" wire:model="smtp_port" class="pms-input" placeholder="587">
+                        @error('smtp_port') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="pms-label">Encryption</label>
+                        <select wire:model="smtp_encryption" class="pms-select">
+                            <option value="tls">TLS (STARTTLS)</option>
+                            <option value="ssl">SSL (Implicit TLS)</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="pms-label">Username</label>
+                        <input type="text" wire:model="smtp_username" class="pms-input" placeholder="you@example.com" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="pms-label">Password</label>
+                        <input type="password" wire:model="smtp_password" class="pms-input" placeholder="••••••••" autocomplete="new-password">
+                    </div>
+                    <div>
+                        <label class="pms-label">From Address</label>
+                        <input type="email" wire:model="smtp_from_address" class="pms-input" placeholder="noreply@hotel.com">
+                        @error('smtp_from_address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="pms-label">From Name</label>
+                        <input type="text" wire:model="smtp_from_name" class="pms-input" placeholder="Merahkie Hotel">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-2">
+                    <button wire:click="saveEmail" class="btn-primary"><i class="fas fa-save"></i> Save Email Settings</button>
+                </div>
+
+                <div class="border-t border-gray-100 pt-5">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-2">Send a Test Email</h3>
+                    <p class="text-xs text-gray-500 mb-3">Sends using the settings above (even if not saved yet) so you can verify they work.</p>
+                    <div class="flex gap-3">
+                        <div class="flex-1">
+                            <input type="email" wire:model="test_email" class="pms-input" placeholder="test@example.com">
+                            @error('test_email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <button wire:click="sendTestEmail" wire:loading.attr="disabled" class="btn-secondary shrink-0">
+                            <span wire:loading wire:target="sendTestEmail"><i class="fas fa-spinner fa-spin"></i></span>
+                            <i class="fas fa-paper-plane" wire:loading.remove wire:target="sendTestEmail"></i> Send Test
+                        </button>
+                    </div>
                 </div>
             </div>
             @endif
