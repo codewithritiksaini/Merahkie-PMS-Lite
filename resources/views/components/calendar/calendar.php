@@ -8,7 +8,7 @@ new class extends Component
     public function getEvents(): array
     {
         return Reservation::with(['guest', 'rooms'])
-            ->whereIn('status', ['Confirmed', 'Checked-In', 'Reserved'])
+            ->whereIn('status', ['Confirmed', 'Checked-In', 'Reserved', 'Checked-Out'])
             ->get()
             ->map(fn ($r) => [
                 'id'    => $r->id,

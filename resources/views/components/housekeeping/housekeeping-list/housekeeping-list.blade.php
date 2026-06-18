@@ -11,18 +11,27 @@
         @endif
     </div>
 
+    @php
+        $statusConfig = [
+            'Clean' => ['key' => 'clean', 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'icon' => 'fa-check-circle', 'border' => 'border-emerald-100'],
+            'Dirty' => ['key' => 'dirty', 'bg' => 'bg-rose-50', 'text' => 'text-rose-600', 'icon' => 'fa-times-circle', 'border' => 'border-rose-100'],
+            'Inspecting' => ['key' => 'inspecting', 'bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'icon' => 'fa-search', 'border' => 'border-amber-100'],
+            'Maintenance' => ['key' => 'maintenance', 'bg' => 'bg-slate-100', 'text' => 'text-slate-600', 'icon' => 'fa-tools', 'border' => 'border-slate-200'],
+        ];
+    @endphp
+
     {{-- Status Overview Cards --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        @foreach([['clean','Clean','emerald','fa-check-circle'],['dirty','Dirty','red','fa-times-circle'],['inspecting','Inspecting','amber','fa-search'],['maintenance','Maintenance','slate','fa-tools']] as [$key,$label,$color,$icon])
-        <button wire:click="$set('statusFilter', '{{ $label == 'All' ? '' : $label }}')"
-                class="pms-card p-4 text-left hover:shadow-md transition-shadow {{ $statusFilter === $label ? 'ring-2 ring-indigo-500' : '' }}">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-{{ $color }}-100 flex items-center justify-center">
-                    <i class="fas {{ $icon }} text-{{ $color }}-600"></i>
+        @foreach($statusConfig as $label => $config)
+        <button wire:click="$set('statusFilter', '{{ $statusFilter === $label ? '' : $label }}')"
+                class="pms-card p-5 text-left hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent {{ $statusFilter === $label ? 'ring-2 ring-indigo-600 border-indigo-100 shadow-md bg-indigo-50/10' : 'hover:border-slate-200' }}">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl {{ $config['bg'] }} flex items-center justify-center shrink-0">
+                    <i class="fas {{ $config['icon'] }} {{ $config['text'] }} text-lg"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-900">{{ $counts[$key] }}</p>
-                    <p class="text-xs text-gray-500">{{ $label }}</p>
+                    <p class="text-2xl font-black text-slate-800 tracking-tight">{{ $counts[$config['key']] }}</p>
+                    <p class="text-xs font-semibold text-slate-500 mt-0.5">{{ $label }}</p>
                 </div>
             </div>
         </button>
@@ -68,9 +77,25 @@
                     <tr>
                         <td class="font-semibold text-gray-800">{{ $rec->room->room_number ?? 'N/A' }}</td>
                         <td>
-                            @php $s = $rec->status; @endphp
-                            <span class="@if($s=='Clean') badge-clean @elseif($s=='Dirty') badge-dirty @elseif($s=='Inspecting') badge-inspecting @else badge-maintenance @endif">
-                                <i class="fas @if($s=='Clean') fa-check @elseif($s=='Dirty') fa-times @elseif($s=='Inspecting') fa-search @else fa-tools @endif mr-1 text-xs"></i>
+                            @php 
+                                $s = $rec->status; 
+                                $badgeClass = match($s) {
+                                    'Clean' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                    'Dirty' => 'bg-rose-50 text-rose-700 border-rose-100',
+                                    'Inspecting' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                    'Maintenance' => 'bg-slate-100 text-slate-700 border-slate-200',
+                                    default => 'bg-slate-50 text-slate-700 border-slate-100',
+                                };
+                                $badgeIcon = match($s) {
+                                    'Clean' => 'fa-check-circle',
+                                    'Dirty' => 'fa-exclamation-circle',
+                                    'Inspecting' => 'fa-hourglass-half',
+                                    'Maintenance' => 'fa-tools',
+                                    default => 'fa-info-circle',
+                                };
+                            @endphp
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeClass }}">
+                                <i class="fas {{ $badgeIcon }} text-[10px]"></i>
                                 {{ $s }}
                             </span>
                         </td>

@@ -12,6 +12,7 @@ new class extends Component
     public string $room_type_id = '';
     public string $price = '';
     public string $status = 'Available';
+    public string $floor = '';
 
     public function boot(): void
     {
@@ -27,6 +28,14 @@ new class extends Component
         $this->room_type_id = (string) $room->room_type_id;
         $this->price = (string) $room->price;
         $this->status = $room->status;
+        $this->floor = (string) ($room->floor ?? '');
+    }
+
+    public function updatedRoomNumber(string $value): void
+    {
+        if (!empty($value) && is_numeric($value[0])) {
+            $this->floor = $value[0];
+        }
     }
 
     public function save(): void
@@ -36,6 +45,7 @@ new class extends Component
             'room_type_id' => 'required|exists:room_types,id',
             'price'        => 'required|numeric|min:0',
             'status'       => 'required|in:Available,Occupied,Reserved,Maintenance',
+            'floor'        => 'required|string|max:50',
         ]);
 
         $this->room->update([
@@ -43,6 +53,7 @@ new class extends Component
             'room_type_id' => $this->room_type_id,
             'price'        => $this->price,
             'status'       => $this->status,
+            'floor'        => $this->floor,
         ]);
 
         session()->flash('toast', ['message' => 'Room updated successfully!', 'type' => 'success']);

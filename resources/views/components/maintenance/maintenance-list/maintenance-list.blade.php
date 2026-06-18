@@ -11,22 +11,57 @@
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-blue-100 text-blue-600"><i class="fas fa-folder-open text-xl"></i></div>
-            <div><p class="text-2xl font-bold text-gray-900">{{ $counts['open'] }}</p><p class="text-xs text-gray-500">Open</p></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon bg-amber-100 text-amber-600"><i class="fas fa-spinner text-xl"></i></div>
-            <div><p class="text-2xl font-bold text-gray-900">{{ $counts['inprogress'] }}</p><p class="text-xs text-gray-500">In Progress</p></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon bg-emerald-100 text-emerald-600"><i class="fas fa-check-circle text-xl"></i></div>
-            <div><p class="text-2xl font-bold text-gray-900">{{ $counts['completed'] }}</p><p class="text-xs text-gray-500">Completed</p></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon bg-red-100 text-red-600"><i class="fas fa-exclamation-circle text-xl"></i></div>
-            <div><p class="text-2xl font-bold text-gray-900">{{ $counts['critical'] }}</p><p class="text-xs text-gray-500">Critical</p></div>
-        </div>
+        <button wire:click="filterByStatus('Open')"
+                class="pms-card p-5 text-left hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent {{ $statusFilter === 'Open' ? 'ring-2 ring-indigo-600 border-indigo-100 shadow-md bg-indigo-50/10' : 'hover:border-slate-200' }}">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-folder-open text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-slate-800 tracking-tight">{{ $counts['open'] }}</p>
+                    <p class="text-xs font-semibold text-slate-500 mt-0.5">Open</p>
+                </div>
+            </div>
+        </button>
+
+        <button wire:click="filterByStatus('In Progress')"
+                class="pms-card p-4 text-left hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent {{ $statusFilter === 'In Progress' ? 'ring-2 ring-indigo-600 border-indigo-100 shadow-md bg-indigo-50/10' : 'hover:border-slate-200' }}">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-spinner text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-slate-800 tracking-tight">{{ $counts['inprogress'] }}</p>
+                    <p class="text-xs font-semibold text-slate-500 mt-0.5">In Progress</p>
+                </div>
+            </div>
+        </button>
+
+        <button wire:click="filterByStatus('Completed')"
+                class="pms-card p-4 text-left hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent {{ $statusFilter === 'Completed' ? 'ring-2 ring-indigo-600 border-indigo-100 shadow-md bg-indigo-50/10' : 'hover:border-slate-200' }}">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-check-circle text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-slate-800 tracking-tight">{{ $counts['completed'] }}</p>
+                    <p class="text-xs font-semibold text-slate-500 mt-0.5">Completed</p>
+                </div>
+            </div>
+        </button>
+
+        <button wire:click="filterByCritical"
+                class="pms-card p-4 text-left hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent {{ $priorityFilter === 'Critical' ? 'ring-2 ring-indigo-600 border-indigo-100 shadow-md bg-indigo-50/10' : 'hover:border-slate-200' }}">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-exclamation-circle text-lg animate-pulse"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-slate-800 tracking-tight">{{ $counts['critical'] }}</p>
+                    <p class="text-xs font-semibold text-slate-500 mt-0.5">Critical Active</p>
+                </div>
+            </div>
+        </button>
     </div>
 
     <div class="pms-card">
@@ -35,7 +70,7 @@
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search tickets..." class="pms-input pl-9 py-1.5 text-sm">
             </div>
-            <div class="flex gap-2">
+            <div class="flex items-center gap-2">
                 <select wire:model.live="priorityFilter" class="pms-select py-1.5 text-sm w-32">
                     <option value="">Priority</option>
                     <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
@@ -44,6 +79,11 @@
                     <option value="">Status</option>
                     <option>Open</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
                 </select>
+                @if($statusFilter || $priorityFilter)
+                <button wire:click="$set('statusFilter', ''); $set('priorityFilter', '')" class="text-xs text-indigo-600 hover:underline shrink-0 ml-1">
+                    Clear
+                </button>
+                @endif
             </div>
         </div>
         <div class="overflow-x-auto">

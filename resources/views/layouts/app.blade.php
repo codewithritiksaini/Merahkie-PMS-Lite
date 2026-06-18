@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" data-navigate-once>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js" data-navigate-once></script>
     @stack('styles')
 </head>
 <body class="h-full bg-slate-50 font-sans antialiased" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
@@ -84,7 +85,6 @@
     });
     @endif
 </script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 @stack('scripts')
 </body>
 </html>

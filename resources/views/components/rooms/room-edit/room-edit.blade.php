@@ -13,8 +13,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
                 <label class="pms-label">Room Number <span class="text-red-500">*</span></label>
-                <input type="text" wire:model="room_number" class="pms-input" placeholder="e.g. 101">
+                <input type="text" wire:model.live="room_number" class="pms-input" placeholder="e.g. 101">
                 @error('room_number') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="pms-label">Floor <span class="text-red-500">*</span></label>
+                <input type="text" wire:model="floor" class="pms-input" placeholder="e.g. 1">
+                @error('floor') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
             <div>
                 <div class="flex items-center justify-between">

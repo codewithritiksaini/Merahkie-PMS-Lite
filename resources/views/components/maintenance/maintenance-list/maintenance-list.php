@@ -4,6 +4,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Room;
 use App\Models\User;
+use App\Models\Housekeeping;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -63,10 +64,52 @@ new class extends Component
         if ($this->isEditMode) {
             DB::table('maintenance_tickets')->where('id', $this->ticketId)->update($data);
         } else {
-            DB::table('maintenance_tickets')->insert(array_merge($data, [
+            $insertedId = DB::table('maintenance_tickets')->insertGetId(array_merge($data, [
                 'reported_by' => Auth::id(),
                 'created_at'  => now(),
             ]));
+            $this->ticketId = $insertedId;
+        }
+
+        // Automatic Room & Housekeeping Sync Loop
+        $room = Room::findOrFail($this->room_id);
+        
+        if (in_array($this->status, ['Open', 'In Progress']) && in_array($this->priority, ['High', 'Critical'])) {
+            // Put room under maintenance
+            $room->update(['status' => 'Maintenance']);
+            
+            // Set housekeeping status to Maintenance
+            Housekeeping::updateOrCreate(
+                ['room_id' => $this->room_id],
+                [
+                    'status' => 'Maintenance', 
+                    'updated_by' => Auth::id(), 
+                    'notes' => "Auto-assigned under maintenance via Ticket #{$this->ticketId}: {$this->issue}"
+                ]
+            );
+        } elseif (in_array($this->status, ['Completed', 'Cancelled'])) {
+            // Check if there are any OTHER active tickets for this room
+            $hasOtherActive = DB::table('maintenance_tickets')
+                ->where('room_id', $this->room_id)
+                ->whereIn('status', ['Open', 'In Progress'])
+                ->exists();
+                
+            if (!$hasOtherActive) {
+                // Restore room to Available if it was Maintenance
+                if ($room->status === 'Maintenance') {
+                    $room->update(['status' => 'Available']);
+                }
+                
+                // Put room in "Inspecting" housekeeping status to verify clean state
+                Housekeeping::updateOrCreate(
+                    ['room_id' => $this->room_id],
+                    [
+                        'status' => 'Inspecting', 
+                        'updated_by' => Auth::id(), 
+                        'notes' => "Maintenance Ticket #{$this->ticketId} resolved. Pending inspection."
+                    ]
+                );
+            }
         }
 
         $this->resetFields();
@@ -93,6 +136,20 @@ new class extends Component
         $this->resetValidation();
     }
 
+    public function filterByStatus(string $status): void
+    {
+        $this->priorityFilter = '';
+        $this->statusFilter = $this->statusFilter === $status ? '' : $status;
+        $this->resetPage();
+    }
+
+    public function filterByCritical(): void
+    {
+        $this->statusFilter = '';
+        $this->priorityFilter = $this->priorityFilter === 'Critical' ? '' : 'Critical';
+        $this->resetPage();
+    }
+
     public function render(): mixed
     {
         $query = DB::table('maintenance_tickets')
@@ -110,11 +167,20 @@ new class extends Component
 
         $tickets = $query->paginate(15);
 
+        // Group status count optimization
+        $statusCounts = DB::table('maintenance_tickets')
+            ->select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
         $counts = [
-            'open'       => DB::table('maintenance_tickets')->where('status', 'Open')->count(),
-            'inprogress' => DB::table('maintenance_tickets')->where('status', 'In Progress')->count(),
-            'completed'  => DB::table('maintenance_tickets')->where('status', 'Completed')->count(),
-            'critical'   => DB::table('maintenance_tickets')->where('priority', 'Critical')->where('status', '!=', 'Completed')->count(),
+            'open'       => $statusCounts['Open'] ?? 0,
+            'inprogress' => $statusCounts['In Progress'] ?? 0,
+            'completed'  => $statusCounts['Completed'] ?? 0,
+            'critical'   => DB::table('maintenance_tickets')
+                ->where('priority', 'Critical')
+                ->where('status', '!=', 'Completed')
+                ->count(),
         ];
 
         return $this->view([

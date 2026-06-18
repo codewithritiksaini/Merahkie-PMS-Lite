@@ -50,6 +50,14 @@ new class extends Component
             'notes'      => $this->notes ?: null,
         ]);
 
+        // Sync with Room status
+        $room = Room::findOrFail($this->room_id);
+        if ($this->status === 'Maintenance') {
+            $room->update(['status' => 'Maintenance']);
+        } elseif ($room->status === 'Maintenance') {
+            $room->update(['status' => 'Available']);
+        }
+
         $this->resetFields();
         $this->showDrawer = false;
         $this->dispatch('toast', message: 'Housekeeping record updated.', type: 'success');
@@ -58,7 +66,16 @@ new class extends Component
     public function delete(int $id): void
     {
         if (Auth::user()->hasRole('admin')) {
-            Housekeeping::findOrFail($id)->delete();
+            $rec = Housekeeping::findOrFail($id);
+            $roomId = $rec->room_id;
+            $rec->delete();
+
+            // Reset room status if it was in maintenance
+            $room = Room::find($roomId);
+            if ($room && $room->status === 'Maintenance') {
+                $room->update(['status' => 'Available']);
+            }
+
             $this->dispatch('toast', message: 'Record deleted.', type: 'success');
         } else {
             $this->dispatch('toast', message: 'Unauthorized.', type: 'error');
@@ -84,14 +101,19 @@ new class extends Component
             $query->where('status', $this->statusFilter);
         }
 
+        // Group status count optimization (4 queries -> 1 query)
+        $statusCounts = Housekeeping::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
         return $this->view([
             'records' => $query->latest()->paginate(10),
             'rooms'   => Room::orderBy('room_number')->get(),
             'counts'  => [
-                'clean'       => Housekeeping::where('status', 'Clean')->count(),
-                'dirty'       => Housekeeping::where('status', 'Dirty')->count(),
-                'inspecting'  => Housekeeping::where('status', 'Inspecting')->count(),
-                'maintenance' => Housekeeping::where('status', 'Maintenance')->count(),
+                'clean'       => $statusCounts['Clean'] ?? 0,
+                'dirty'       => $statusCounts['Dirty'] ?? 0,
+                'inspecting'  => $statusCounts['Inspecting'] ?? 0,
+                'maintenance' => $statusCounts['Maintenance'] ?? 0,
             ],
         ]);
     }

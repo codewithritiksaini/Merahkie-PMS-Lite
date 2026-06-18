@@ -24,6 +24,7 @@
                 <span class="w-3 h-3 rounded-sm bg-indigo-500 inline-block"></span><span class="text-gray-500">Confirmed</span>
                 <span class="w-3 h-3 rounded-sm bg-emerald-500 inline-block ml-2"></span><span class="text-gray-500">Checked-In</span>
                 <span class="w-3 h-3 rounded-sm bg-amber-500 inline-block ml-2"></span><span class="text-gray-500">Reserved</span>
+                <span class="w-3 h-3 rounded-sm bg-slate-400 inline-block ml-2"></span><span class="text-gray-500">Checked-Out</span>
             </div>
             <a href="{{ route('reservations.index') }}" class="btn-primary btn-sm">
                 <i class="fas fa-plus"></i> New Booking
@@ -63,6 +64,10 @@
                 },
             });
             calendar.render();
+            $watch('sidebarOpen', () => {
+                setTimeout(() => calendar.updateSize(), 200);
+            });
+            $cleanup(() => calendar.destroy());
         "></div>
     </div>
 </div>
