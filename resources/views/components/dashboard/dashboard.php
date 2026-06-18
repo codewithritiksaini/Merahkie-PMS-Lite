@@ -22,6 +22,17 @@ new class extends Component
         $occupancyPercent = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100) : 0;
         $housekeepingPending = Housekeeping::where('status', '!=', 'Clean')->count();
 
+        // 7-day revenue trend for chart visualization
+        $revenueTrend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $revenue = CheckOut::whereDate('checkout_datetime', $date)->sum('total_amount');
+            $revenueTrend[] = [
+                'day' => $date->format('D'),
+                'revenue' => (float)$revenue,
+            ];
+        }
+
         $recentReservations = Reservation::with(['guest', 'rooms'])
             ->latest()
             ->limit(8)
@@ -29,7 +40,13 @@ new class extends Component
 
         $rooms = Room::with(['latestHousekeeping', 'activeMaintenanceTickets', 'roomType'])
             ->orderBy('room_number')
-            ->get();
+            ->get()
+            ->map(function ($room) {
+                if (empty($room->floor)) {
+                    $room->floor = 'Unassigned';
+                }
+                return $room;
+            });
 
         return $this->view([
             'totalRooms'          => $totalRooms,
@@ -43,6 +60,7 @@ new class extends Component
             'housekeepingPending' => $housekeepingPending,
             'recentReservations'  => $recentReservations,
             'rooms'               => $rooms,
+            'revenueTrend'        => $revenueTrend,
         ]);
     }
 };

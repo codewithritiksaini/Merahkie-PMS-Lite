@@ -14,6 +14,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" data-navigate-once>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js" data-navigate-once></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts" data-navigate-once></script>
     @stack('styles')
 </head>
 <body class="h-full bg-slate-50 font-sans antialiased" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
