@@ -95,3 +95,12 @@
 /* Stat card */
 .stat-card { @apply bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center gap-4; }
 .stat-icon { @apply w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0; }
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

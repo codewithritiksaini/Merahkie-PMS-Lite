@@ -27,6 +27,10 @@ new class extends Component
             ->limit(8)
             ->get();
 
+        $rooms = Room::with(['latestHousekeeping', 'activeMaintenanceTickets', 'roomType'])
+            ->orderBy('room_number')
+            ->get();
+
         return $this->view([
             'totalRooms'          => $totalRooms,
             'occupiedRooms'       => $occupiedRooms,
@@ -38,6 +42,7 @@ new class extends Component
             'occupancyPercent'    => $occupancyPercent,
             'housekeepingPending' => $housekeepingPending,
             'recentReservations'  => $recentReservations,
+            'rooms'               => $rooms,
         ]);
     }
 };

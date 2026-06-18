@@ -22,7 +22,7 @@
     </div>
 
     {{-- Navigation --}}
-    <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
+    <nav class="flex-1 overflow-y-auto no-scrollbar py-4 px-2 space-y-0.5">
 
         {{-- Main --}}
         <div x-show="sidebarOpen" class="px-3 pb-2">
@@ -148,11 +148,11 @@
     <div class="border-t border-slate-800 px-3 py-3 shrink-0">
         <div class="flex items-center gap-3" :class="sidebarOpen ? '' : 'justify-center'">
             <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
-                <span class="text-white text-xs font-bold">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
+                <span class="text-white text-xs font-bold">{{ strtoupper(substr(Auth::user()?->name ?? 'U', 0, 1)) }}</span>
             </div>
             <div x-show="sidebarOpen" x-transition class="min-w-0">
-                <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name ?? '' }}</p>
-                <p class="text-xs text-slate-400 truncate">{{ Auth::user()->email ?? '' }}</p>
+                <p class="text-sm font-medium text-white truncate">{{ Auth::user()?->name ?? '' }}</p>
+                <p class="text-xs text-slate-400 truncate">{{ Auth::user()?->email ?? '' }}</p>
             </div>
         </div>
     </div>
@@ -172,15 +172,17 @@
             <i class="fas fa-times"></i>
         </button>
     </div>
-    <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
+    <nav class="flex-1 overflow-y-auto no-scrollbar py-4 px-2 space-y-0.5">
         <a href="{{ route('dashboard') }}" wire:navigate @click="mobileSidebarOpen = false"
            class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span>
         </a>
+        @if(Auth::check() && Auth::user()->hasRole('admin'))
         <a href="{{ route('rooms.index') }}" wire:navigate @click="mobileSidebarOpen = false"
            class="sidebar-link {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
             <i class="fas fa-bed nav-icon"></i><span>Rooms</span>
         </a>
+        @endif
         <a href="{{ route('reservations.index') }}" wire:navigate @click="mobileSidebarOpen = false"
            class="sidebar-link {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
             <i class="fas fa-calendar-check nav-icon"></i><span>Reservations</span>

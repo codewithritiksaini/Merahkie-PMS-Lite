@@ -120,9 +120,16 @@ class ReservationService
             // Change Reservation Status
             $res->update(['status' => 'Checked-Out']); // 'Completed' conceptually
 
-            // Change Room Status for every room in this booking
+            // Change Room Status for every room in this booking and trigger Dirty status in housekeeping
             foreach ($res->rooms as $room) {
                 $room->update(['status' => 'Available']);
+
+                \App\Models\Housekeeping::create([
+                    'room_id' => $room->id,
+                    'status' => 'Dirty',
+                    'updated_by' => $res->checkIn->user_id ?? 1,
+                    'notes' => 'Auto-created on guest check-out of Reservation #' . $res->id
+                ]);
             }
 
             // Create CheckOut record

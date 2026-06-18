@@ -135,10 +135,24 @@ new class extends Component
 
         $current = Reservation::with(['rooms', 'payments'])->find($this->reservation->id);
         $payments = $current->payments->sortByDesc('paid_at')->values();
-        $estimatedTotal = $current->estimated_total;
         $totalPaid = $current->total_paid;
-        $balanceDue = $current->balance_due;
+        
+        $charges = null;
+        $balanceDue = 0;
 
-        return $this->view(compact('guests', 'rooms', 'payments', 'estimatedTotal', 'totalPaid', 'balanceDue'));
+        if (!empty($this->room_ids) && $this->check_in_date && $this->check_out_date) {
+            $preview = new Reservation([
+                'check_in_date'  => $this->check_in_date,
+                'check_out_date' => $this->check_out_date,
+                'discount_type'  => $this->discount_type,
+                'discount_value' => $this->discount_value !== '' ? $this->discount_value : 0,
+                'tax_rate'       => $this->tax_rate !== '' ? $this->tax_rate : 18,
+            ]);
+            $preview->setRelation('rooms', Room::whereIn('id', $this->room_ids)->get());
+            $charges = $preview->calculateCharges();
+            $balanceDue = round($charges['total'] - $totalPaid, 2);
+        }
+
+        return $this->view(compact('guests', 'rooms', 'payments', 'charges', 'totalPaid', 'balanceDue'));
     }
 };

@@ -89,7 +89,7 @@ new class extends Component
                 ->get();
         }
 
-        $estimatedTotal = 0;
+        $charges = null;
         $balanceDue = 0;
 
         if (!empty($this->room_ids) && $this->check_in_date && $this->check_out_date) {
@@ -101,10 +101,10 @@ new class extends Component
                 'tax_rate'       => $this->tax_rate !== '' ? $this->tax_rate : 18,
             ]);
             $preview->setRelation('rooms', Room::whereIn('id', $this->room_ids)->get());
-            $estimatedTotal = $preview->estimated_total;
-            $balanceDue = round($estimatedTotal - (float) ($this->payment_amount !== '' ? $this->payment_amount : 0), 2);
+            $charges = $preview->calculateCharges();
+            $balanceDue = round($charges['total'] - (float) ($this->payment_amount !== '' ? $this->payment_amount : 0), 2);
         }
 
-        return $this->view(compact('guests', 'rooms', 'estimatedTotal', 'balanceDue'));
+        return $this->view(compact('guests', 'rooms', 'charges', 'balanceDue'));
     }
 };
